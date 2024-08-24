@@ -73,7 +73,7 @@ const UploadImage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background-color)] p-4">
       <div className="bg-[var(--secondary-color)] p-6 rounded-lg shadow-md w-full max-w-md border border-gray-300">
-        <h2 className="text-2xl font-semibold text-[var(--text-color)] mb-4">Upload Image</h2>
+        <h2 className="text-2xl font-semibold text-[var(--text-color)] mb-4 text-center">Upload Image</h2>
         
         <div className="mb-4 w-full flex flex-col items-center">
           <input 
