@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import NotFound from "./components/NotFound";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ const App = () => {
                   <Route path="/" element={<ProtectedRoute><UploadImage /></ProtectedRoute>} />
                   <Route path="/gallery" element={<ProtectedRoute><DisplayImages /></ProtectedRoute>} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="*" element={<NotFound />} /> 
                 </Routes>
               </main>
               <Footer />
