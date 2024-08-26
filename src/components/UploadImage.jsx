@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { storage, db } from "../firebaseConfig";
+import { storage, db, auth } from "../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, serverTimestamp, getDocs } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 
 const UploadImage = () => {
   const [image, setImage] = useState(null);
@@ -11,6 +12,7 @@ const UploadImage = () => {
   const [previousTags, setPreviousTags] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploaderName, setUploaderName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +24,24 @@ const UploadImage = () => {
       });
       setPreviousTags(Array.from(tags));
     };
+
     fetchTags();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.displayName) {
+        setUploaderName(user.displayName);
+      }
+    });
   }, []);
 
   const handleUpload = async () => {
     if (image == null || tag.trim() === "") return;
-    
+
+    if (!uploaderName.trim()) {
+      alert("Please enter your name.");
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -38,6 +52,7 @@ const UploadImage = () => {
       await addDoc(collection(db, "images"), {
         imageUrl,
         tag,
+        uploaderName,
         timestamp: serverTimestamp(),
       });
 
@@ -79,14 +94,30 @@ const UploadImage = () => {
           <input 
             type="file" 
             onChange={(e) => setImage(e.target.files[0])} 
+            accept="image/*"
             className="hidden"
             id="file-upload"
           />
           <label 
             htmlFor="file-upload" 
-            className="text-sm text-[var(--text-color)] cursor-pointer border border-dashed border-gray-400 rounded-lg p-4 w-full text-center"
+            className="text-sm text-[var(--text-color)] cursor-pointer border border-dashed border-gray-400 rounded-lg p-4 w-full text-center mb-2"
           >
             Choose an Image
+          </label>
+
+          <input 
+            type="file" 
+            onChange={(e) => setImage(e.target.files[0])} 
+            accept="image/*" 
+            capture="environment"
+            className="hidden"
+            id="camera-upload"
+          />
+          <label 
+            htmlFor="camera-upload" 
+            className="text-sm text-[var(--text-color)] cursor-pointer border border-dashed border-gray-400 rounded-lg p-4 w-full text-center"
+          >
+            Take a Photo
           </label>
 
           {image && (
@@ -102,11 +133,20 @@ const UploadImage = () => {
 
         <input 
           type="text" 
+          value={uploaderName}
+          onChange={(e) => setUploaderName(e.target.value)}
+          placeholder="Enter your name"
+          className="mb-4 w-full p-2 border border-gray-300 rounded"
+        />
+
+        <input 
+          type="text" 
           value={tag}
           onChange={handleTagChange}
           placeholder="Enter a tag"
           className="mb-4 w-full p-2 border border-gray-300 rounded"
         />
+
         {suggestions.length > 0 && (
           <ul className="bg-white border border-gray-300 rounded p-2 mb-4">
             {suggestions.map((suggestion, index) => (
@@ -141,13 +181,6 @@ const UploadImage = () => {
             </div>
           </div>
         )}
-
-        <label 
-          htmlFor="file-upload"
-          className="text-sm text-[var(--text-color)] cursor-pointer"
-        >
-          <i className="fas fa-upload"></i> Choose a different image
-        </label>
       </div>
     </div>
   );
