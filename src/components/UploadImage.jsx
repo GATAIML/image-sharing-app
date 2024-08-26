@@ -3,7 +3,7 @@ import { storage, db, auth } from "../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { addDoc, collection, serverTimestamp, getDocs } from "firebase/firestore";
 import { useNavigate } from 'react-router-dom';
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 
 const UploadImage = () => {
   const [image, setImage] = useState(null);
